@@ -39,7 +39,7 @@ class StaticURLTests(TestCase):
             f'/posts/{self.post.id}/',
             f'/posts/{self.post.id}/edit/',
             '/create/',
-            '/follow/': 'posts/follow.html',
+            '/follow/',
         )
         for url in url_names:
             with self.subTest(url=url):
@@ -72,7 +72,7 @@ class StaticURLTests(TestCase):
             f'/posts/{self.post.pk}/': 'posts/post_detail.html',
             f'/posts/{self.post.pk}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
-
+            '/follow/': 'posts/follow.html',
         }
         for address, template in templates_url_names.items():
             with self.subTest(address=address):
