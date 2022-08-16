@@ -39,7 +39,7 @@ class StaticURLTests(TestCase):
             f'/posts/{self.post.id}/',
             f'/posts/{self.post.id}/edit/',
             '/create/',
-
+            '/follow/': 'posts/follow.html',
         )
         for url in url_names:
             with self.subTest(url=url):
