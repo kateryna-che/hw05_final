@@ -39,16 +39,11 @@ class StaticURLTests(TestCase):
             f'/posts/{self.post.id}/',
             f'/posts/{self.post.id}/edit/',
             '/create/',
-            '/follow/',
         )
         for url in url_names:
             with self.subTest(url=url):
                 response = self.authorized_client.get(url)
                 self.assertEqual(response.status_code, HTTPStatus.OK)
-
-    def test_unexisting_page(self):
-        response = self.authorized_client.get('/unexisting-page/')
-        self.assertEqual(response.status_code, HTTPStatus.NOT_FOUND)
 
     def test_redirect_no_auth(self):
         response = self.authorized_no_auth.get(f'/posts/{self.post.pk}/edit/')
@@ -64,17 +59,38 @@ class StaticURLTests(TestCase):
             with self.subTest(url=url):
                 self.assertRedirects(self.guest_client.get(url), redirect)
 
+
+class TemplateTestClass(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.user = User.objects.create_user(username='user')
+        cls.group = Group.objects.create(
+            title='test-group',
+            slug='test-slug',
+            description='test-description',
+        )
+        cls.post = Post.objects.create(
+            author=cls.user,
+            text='test-post',
+        )
+
+    def setUp(self):
+        self.client = Client()
+        self.client.force_login(self.user)
+
     def test_urls_uses_correct_template(self):
         templates_url_names = {
             '/': 'posts/index.html',
             f'/group/{self.group.slug}/': 'posts/group_list.html',
-            f'/profile/{self.auth}/': 'posts/profile.html',
-            f'/posts/{self.post.pk}/': 'posts/post_detail.html',
-            f'/posts/{self.post.pk}/edit/': 'posts/create_post.html',
+            f'/profile/{self.user}/': 'posts/profile.html',
+            f'/posts/{self.post.id}/': 'posts/post_detail.html',
+            f'/posts/{self.post.id}/edit/': 'posts/create_post.html',
             '/create/': 'posts/create_post.html',
             '/follow/': 'posts/follow.html',
+
         }
         for address, template in templates_url_names.items():
             with self.subTest(address=address):
-                response = self.authorized_client.get(address)
+                response = self.client.get(address)
                 self.assertTemplateUsed(response, template)
