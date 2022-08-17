@@ -65,10 +65,8 @@ class TaskPagesTests(TestCase):
         cache.clear()
 
     def post_attributes_test(self, response, bull=False):
-        if bull:
-            post = response.context.get('post')
-        else:
-            post = response.context['page_obj'][0]
+        post = (response.context.get('post') if bull
+                else response.context['page_obj'][0])
         post_attributes = {
             post.id: self.post.id,
             post.text: self.post.text,
@@ -170,7 +168,7 @@ class TaskPagesTests(TestCase):
         )
         self.assertEqual(len(response_new.context['page_obj']), follow_posts)
 
-    def test_profile_follow_unfollow(self):
+    def test_profile_follow(self):
         self.authorized_client.get(reverse(
             'posts:profile_follow',
             kwargs={'username': self.follow})
@@ -180,15 +178,22 @@ class TaskPagesTests(TestCase):
             author=self.follow
         ).count()
         self.assertEqual(follow, 1)
-        self.authorized_client.get(reverse(
-            'posts:profile_unfollow',
-            kwargs={'username': self.follow})
-        )
+
+    def test_profile_unfollow(self):
+        Follow.objects.create(user=self.user, author=self.follow)
         follow = Follow.objects.filter(
             user=self.user,
             author=self.follow
         ).count()
-        self.assertEqual(follow, 0)
+        self.authorized_client.get(reverse(
+            'posts:profile_unfollow',
+            kwargs={'username': self.follow})
+        )
+        unfollow = Follow.objects.filter(
+            user=self.user,
+            author=self.follow
+        ).count()
+        self.assertEqual(follow, unfollow +1)
 
 
 class PaginatorViewsTest(TestCase):
