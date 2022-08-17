@@ -34,8 +34,8 @@ def profile(request, username):
     post_author = author.posts.select_related('group')
     posts_count = post_author.count()
     following = (
-            request.user.is_authenticated and
-            author.following.filter(user=request.user).exists()
+        request.user.is_authenticated
+        and author.following.filter(user=request.user).exists()
     )
     context = {
         'author': author,

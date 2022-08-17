@@ -193,7 +193,7 @@ class TaskPagesTests(TestCase):
             user=self.user,
             author=self.follow
         ).count()
-        self.assertEqual(follow, unfollow +1)
+        self.assertEqual(follow, unfollow + 1)
 
 
 class PaginatorViewsTest(TestCase):
